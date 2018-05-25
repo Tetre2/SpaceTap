@@ -1,9 +1,8 @@
 package Client;
 
-import java.util.TimerTask;
-
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
@@ -14,17 +13,19 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class Game extends Application{
-	public static double WORLD_WIDTH = 1200;
-	public static double WORLD_HEIGHT = 800;
+	public static double WORLD_WIDTH = 500;
+	public static double WORLD_HEIGHT = 500;
 
 	private static Stage pStage;
-	private int timer = 0;
+	private static int timer = 0;
 
-	private Group root = new Group();
-	private Scene scene = new Scene(root, WORLD_WIDTH, WORLD_HEIGHT);
+	private static Group root = new Group();
+	private static Scene scene = new Scene(root, WORLD_WIDTH, WORLD_HEIGHT);
 
 	private Group startingScreenGroup = new Group();
 	private Scene startingScreen = new Scene(startingScreenGroup, WORLD_WIDTH, WORLD_HEIGHT);	
+	
+	private ConnectingClient c = new ConnectingClient();
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
@@ -45,7 +46,10 @@ public class Game extends Application{
 	}
 
 
-	private void game(){
+	private static void game(){
+		
+		Text text = new Text("Press Space after 3 secs"); 
+		root.getChildren().add(text);
 
 		
 		AnimationTimer at = new AnimationTimer() {
@@ -81,10 +85,9 @@ public class Game extends Application{
 			}
 			
 		});
+
 		
 	}
-
-
 
 
 	private void setup(){
@@ -99,8 +102,10 @@ public class Game extends Application{
 		g.setTranslateY(WORLD_HEIGHT/2);
 		
 		g.setOnMouseClicked(event->{
-			game();
-			pStage.setScene(scene);
+			
+			c.sendReady();
+			//startGame();
+			System.out.println("pressed");
 			
 		});
 
@@ -110,6 +115,20 @@ public class Game extends Application{
 		pStage.setScene(startingScreen);	
 	}
 
+	public static void startGame(){
+		System.out.println("dlsa");
+		game();
+		
+		Platform.runLater(new Runnable(){
+			@Override
+			public void run() {
+
+				pStage.setScene(scene);
+				
+			}								   
+		});
+		
+	}
 
 	public static Stage getPrimaryStage() {
 		return pStage;
